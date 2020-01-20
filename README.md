@@ -36,12 +36,18 @@ dirs:
     errors: "{dirs.data}/errors"
     sessions: "{dirs.data}/sessions"
     databases:
-        - "{dirs.data}/databases/db0"
-        - "{dirs.data}/databases/db1"
-        - "{dirs.data}/databases/db_test"
+        - "{dirs.data}/db0"
+        - "{dirs.data}/db1"
+        - "{dirs.data}/db_test"
 exes:
     main: "{dirs.bin}/main"
     test: tests
+wew: !Eval "2+2"
+wewblock: !BlockEval |
+    a = []
+    for i in range({wew}):
+        a.append(i*2)
+    return a
 ```
 
 Reading in a yaml file:
@@ -97,4 +103,4 @@ However, I wanted a few extra features and disliked some of the original impleme
    - Variable reference of current object via special variable `this`. Useful for lists and referencing deeper into table heirarchies.
  - Fixed some bugs with `YamlList`
  - Refactor
- - (TODO) Added `Eval` and `EvalBlock` tags to support arbitrary Python code execution in objects
+ - Added `Eval` and `EvalBlock` tags to support arbitrary Python code execution in objects

@@ -6,10 +6,16 @@ dirs:
     data: "{dirs.venv}/data"
     errors: "{dirs.data}/errors"
     sessions: "{dirs.data}/sessions"
-    databases: 
+    databases:
         - "{dirs.data}/db0"
         - "{dirs.data}/db1"
         - "{dirs.data}/db_test"
 exes:
     main: "{dirs.bin}/main"
     test: tests
+wew: !Eval "2+2"
+wewblock: !BlockEval |
+    a = []
+    for i in range({wew}):
+        a.append(i*2)
+    return a
