@@ -1,0 +1,15 @@
+project_name: hello-world
+dirs:
+    home: /home/user
+    venv: "{dirs.home}/venvs/{project_name}"
+    bin: "{dirs.venv}/bin"
+    data: "{dirs.venv}/data"
+    errors: "{dirs.data}/errors"
+    sessions: "{dirs.data}/sessions"
+    databases: 
+        - "{dirs.data}/db0"
+        - "{dirs.data}/db1"
+        - "{dirs.data}/db_test"
+exes:
+    main: "{dirs.bin}/main"
+    test: tests

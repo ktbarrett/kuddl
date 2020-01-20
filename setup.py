@@ -1,28 +1,25 @@
 from setuptools import setup
-from codecs import open
 from os import path
 
 here = path.abspath(path.dirname(__file__))
+package_name = 'dynamic_yaml'
 
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
+def read_file(fname):
+    return open(path.join(path.dirname(__file__), fname)).read()
+
+# imports __version__
+exec(read_file(path.join(package_name, '_version.py')))
 
 setup(
     name='dynamic-yaml',
-    version='1.1.4',
-    description='Enables self referential yaml entries',
-    long_description=long_description,
-    url='https://github.com/childsish/dynamic-yaml',
-    author='Liam Childs',
-    author_email='liam.h.childs@gmail.com',
+    version=__version__,
+    description='YAML+Python data description language',
+    long_description=read_file('README.md'),
+    url='https://github.com/ktbarrett/dynamic-yaml',
+    author='Kaleb Barrett;Liam Childs',
+    author_email='dev.ktbarrett@gmail.com;liam.h.childs@gmail.com',
     license='MIT',
-    packages=['dynamic_yaml'],
+    packages=[package_name],
+    python_requires='>=3.0',
     install_requires=['pyyaml'],
-    extras_require={
-        'dev': [
-            'twine',
-            'wheel'
-        ]
-    },
-    keywords='development yaml configuration'
 )

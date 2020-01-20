@@ -1,9 +1,7 @@
-[![Build Status](https://travis-ci.org/childsish/dynamic-yaml.svg?branch=master)](https://travis-ci.org/childsish/dynamic-yaml)
-
 dynamic-yaml
 ============
 
-Dynamic YAML is a couple of classes and functions that add extra functionality to YAML that turns it into a great configuration language for Python. If you prefer JSON, then see [dynamic-json][dynamic-json].
+Dynamic YAML is a couple of classes and functions that add extra functionality to YAML that turns it into a great configuration language for Python.
 
 YAML already provides:
 
@@ -19,6 +17,7 @@ In addition, the PyYAML parser provides:
 Finally, the classes introduced by Dynamic YAML enable:
 
 * Dynamic string resolution
+* Evaluation of arbitrary Python code
 
 Dynamic PyYAML requires PyYAML (https://bitbucket.org/xi/pyyaml).
 
@@ -36,7 +35,10 @@ dirs:
     data: "{dirs.venv}/data"
     errors: "{dirs.data}/errors"
     sessions: "{dirs.data}/sessions"
-    databases: "{dirs.data}/databases"
+    databases:
+        - "{dirs.data}/databases/db0"
+        - "{dirs.data}/databases/db1"
+        - "{dirs.data}/databases/db_test"
 exes:
     main: "{dirs.bin}/main"
     test: tests
@@ -56,7 +58,13 @@ Now, the entry `cfg.dirs.venv` will resolve to `"/home/user/venvs/hello-world"`.
 Installation
 ------------
 
-To install, simply run:
+First clone the repo,
+
+```bash
+git clone https://github.com/ktbarrett/dynamic-yaml.git
+```
+
+Then you can install it,
 
 ```bash
 pip install dynamic-yaml
@@ -70,4 +78,23 @@ Due to the short amount of time I was willing to spend on working upon this, the
 * **Wild card strings must be surrounded by quotes.** Braces ('{' and '}') in a YAML file usually enclose a mapping object. However, braces are also used by the Python string formatting syntax to enclose a reference. As there is no way to change either of these easily, strings that contain wildcards must be explicitly declared using single or double quotes to enclose them.
 * **Variables are always dynamically resolved.** This possibly introduces significant slow downs, but hopefully your configuration object isn't too big anyway.
 
-[dynamic-json]: https://github.com/childsish/dynamic-json
+
+Differences
+-----------
+
+This is a fork of [childsish's project](https://github.com/childsish/dynamic-yaml) if you missed it.
+I was looking to write a tool to do something similar and liked his implementation so I used it as a starting point.
+However, I wanted a few extra features and disliked some of the original implementation.
+
+ - Removed `__setitem__` behavior that attempts to enforce all YAML structure as the custom objects.
+   - There are *numerous* issues with the implementation.
+   - I did not need the need to dump the object in unresolved format.
+ - Removed `__repr__` behavior which I assume was there to aid in dumping the object in unresolved format.
+ - Cached resolved values for performance
+ - Added more variables
+   - Variable reference is now lexically scoped, not always from the root
+   - Variable reference from root scope via special variable `root`
+   - Variable reference of current object via special variable `this`. Useful for lists and referencing deeper into table heirarchies.
+ - Fixed some bugs with `YamlList`
+ - Refactor
+ - (TODO) Added `Eval` and `EvalBlock` tags to support arbitrary Python code execution in objects
