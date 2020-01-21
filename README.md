@@ -28,25 +28,24 @@ The key feature that was introduced is the ability for a string scalar to refere
 An example yaml configuration:
 ```yaml
 project_name: hello-world
+randint : !Import "random:randint"
 dirs:
     home: /home/user
     venv: "{dirs.home}/venvs/{project_name}"
-    bin: "{dirs.venv}/bin"
-    data: "{dirs.venv}/data"
-    errors: "{dirs.data}/errors"
-    sessions: "{dirs.data}/sessions"
+    data: "{venv}/data"
     databases:
         - "{dirs.data}/db0"
         - "{dirs.data}/db1"
-        - "{dirs.data}/db_test"
+        - "{data}/db_test"
 exes:
-    main: "{dirs.bin}/main"
-    test: tests
-wew: !Eval "2+2"
+    main: "{dirs.data}/main"
+test:
+  wow : 2
+wew: !Eval "test.wow+2"
 wewblock: !BlockEval |
     a = []
     for i in range({wew}):
-        a.append(i*2)
+        a.append(randint(0, i)*2)
     return a
 ```
 
