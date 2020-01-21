@@ -38,7 +38,7 @@ dirs:
         - "{dirs.data}/db1"
         - "{data}/db_test"
 exes:
-    main: "{dirs.data}/main"
+    main: "{dirs.home}/main"
 test:
   wow : 2
 wew: !Eval "test.wow+2"
@@ -47,6 +47,12 @@ wewblock: !BlockEval |
     for i in range({wew}):
         a.append(randint(0, i)*2)
     return a
+a :
+  arg : 2
+  value : &func !Eval "arg * 2"
+b :
+  arg : 3
+  value : *func
 ```
 
 Reading in a yaml file:
