@@ -22,7 +22,11 @@ class YamlDict(dict):
         stack = stack + [self]
         for k, v in self.items():
             if hasattr(v, '_dynamic_yaml_eval'):
-                self[k] = v._dynamic_yaml_eval(root, stack)
+                try:
+                    self[k] = v._dynamic_yaml_eval(root, stack)
+                except YamlEvalException as e:
+                    e.stacktrace.append(f"{k}")
+                    raise
             elif isinstance(v, str):
                 env = _dict_join(*stack, {'root': root, 'this': self})
                 self[k] = v.format(**env)
@@ -34,11 +38,26 @@ class YamlList(list):
     def _dynamic_yaml_eval(self, root, stack):
         for i, v in enumerate(self):
             if hasattr(v, '_dynamic_yaml_eval'):
-                self[i] = v._dynamic_yaml_eval(root, stack)
+                try:
+                    self[i] = v._dynamic_yaml_eval(root, stack)
+                except YamlEvalException as e:
+                    e.stacktrace.append(f"[{i}]")
+                    raise
             elif isinstance(v, str):
                 env = _dict_join(*stack, {'root': root, 'this': self})
                 self[i] = v.format(**env)
         return self
+
+
+class YamlEvalException(Exception):
+
+    def __init__(self):
+        super().__init__()
+        self.stacktrace = []
+
+    def __str__(self):
+        stacktrace = '.'.join(reversed(self.stacktrace))
+        return f"when evaluating '{stacktrace}'"
 
 
 class YamlEval(str):
@@ -46,7 +65,12 @@ class YamlEval(str):
     def _dynamic_yaml_eval(self, root, stack):
         env = _dict_join(globals(), *stack, {'root': root})
         code_str = self.format(**env)
-        return eval(code_str, env, {})
+        try:
+            v = eval(code_str, env, {})
+        except Exception:
+            raise YamlEvalException()
+        else:
+            return v
 
 
 class YamlBlockEval(str):
@@ -56,8 +80,12 @@ class YamlBlockEval(str):
         code_str = self.format(**env)
         func_str = '\n\t'.join(["def _tmp():"] + code_str.split('\n'))
         loc = {}
-        exec(func_str, env, loc)
-        return loc["_tmp"]()
+        try:
+            exec(func_str, env, loc)
+        except Exception:
+            raise YamlEvalException()
+        else:
+            return loc["_tmp"]()
 
 
 class YamlImport(str):
@@ -73,4 +101,4 @@ class YamlImport(str):
             name, item = spl
             return getattr(__import__(name, globals(), {}), item)
         else:
-            raise TypeError(f"Malformed import specifier: {import_str}")
+            raise YamlEvalException(f"bad import specifier: {import_str}")
