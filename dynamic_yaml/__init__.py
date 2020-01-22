@@ -29,11 +29,16 @@ def _construct_importer(laoder, node):
     return YamlImport(node.value)
 
 
+def _construct_includer(loader, node):
+    return YamlInclude(node.value)
+
+
 DynamicYamlLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_SEQUENCE_TAG, _construct_sequence)
 DynamicYamlLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _construct_mapping)
 DynamicYamlLoader.add_constructor('!Eval', _construct_eval)
 DynamicYamlLoader.add_constructor('!BlockEval', _construct_blockeval)
 DynamicYamlLoader.add_constructor('!Import', _construct_importer)
+DynamicYamlLoader.add_constructor('!Include', _construct_includer)
 
 
 def post_process(data):
