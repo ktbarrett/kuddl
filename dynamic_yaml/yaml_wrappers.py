@@ -102,3 +102,12 @@ class YamlImport(str):
             return getattr(__import__(name, globals(), {}), item)
         else:
             raise YamlEvalException(f"bad import specifier: {import_str}")
+
+
+class YamlInclude(str):
+
+    def _dynamic_yaml_eval(self, root, stack):
+        env = _dict_join(globals(), *stack, {'root': root})
+        filename = self.format(**env)
+        from . import load
+        return load(open(filename).read())
