@@ -4,7 +4,7 @@ from ._version import __version__  # noqa
 
 
 def register_dynamic_yaml(Loader):
-    from .yaml_wrappers import YamlDict, YamlList, YamlEval, YamlBlockEval, YamlImport, YamlInclude
+    from ._yaml_wrappers import YamlDict, YamlList, YamlEval, YamlBlockEval, YamlImport, YamlInclude
 
     def _construct_sequence(loader, node):
         return YamlList(loader.construct_object(child) for child in node.value)
@@ -41,7 +41,7 @@ register_dynamic_yaml(DynamicYamlLoader)
 
 
 def post_process(document, args):
-    from .scope import NullScope
+    from ._scope import NullScope
     if hasattr(document, '_dynamic_yaml_eval'):
         document._dynamic_yaml_eval(NullScope(args=args, root=document))
     return document
