@@ -1,10 +1,10 @@
 import yaml
 
-from .yaml_wrappers import YamlDict, YamlList, YamlEval, YamlBlockEval, YamlImport, YamlInclude
 from ._version import __version__  # noqa
 
 
 def register_dynamic_yaml(Loader):
+    from .yaml_wrappers import YamlDict, YamlList, YamlEval, YamlBlockEval, YamlImport, YamlInclude
 
     def _construct_sequence(loader, node):
         return YamlList(loader.construct_object(child) for child in node.value)
@@ -40,12 +40,13 @@ class DynamicYamlLoader(yaml.FullLoader):
 register_dynamic_yaml(DynamicYamlLoader)
 
 
-def post_process(data):
-    if hasattr(data, '_dynamic_yaml_eval'):
-        data._dynamic_yaml_eval(root=data, stack=[])
-    return data
+def post_process(document, args):
+    from .scope import NullScope
+    if hasattr(document, '_dynamic_yaml_eval'):
+        document._dynamic_yaml_eval(NullScope(args=args, root=document))
+    return document
 
 
-def load(s, Loader=DynamicYamlLoader):
-    data = yaml.load(s, Loader=Loader)
-    return post_process(data)
+def load(s, args={}, Loader=DynamicYamlLoader):
+    document = yaml.load(s, Loader=Loader)
+    return post_process(document, args)
