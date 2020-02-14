@@ -47,7 +47,7 @@ register_dynamic_yaml(DynamicYamlLoader)
 def post_process(document, args):
     from ._scope import NullScope
     if hasattr(document, '_dynamic_yaml_eval'):
-        document._dynamic_yaml_eval(NullScope(args=args, root=document))
+        return document._dynamic_yaml_eval(NullScope(args=args, root=document))
     return document
 
 
