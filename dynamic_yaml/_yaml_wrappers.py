@@ -1,21 +1,5 @@
 
-class YamlStructure():
-
-    def _dynamic_yaml_eval(self, scope):
-        scope = scope._add(self)
-        for k, v in self.items():
-            if hasattr(v, '_dynamic_yaml_eval'):
-                try:
-                    self[k] = v._dynamic_yaml_eval(scope)
-                except YamlEvalException as e:
-                    e.stacktrace.append(f"{k}")
-                    raise
-            elif isinstance(v, str):
-                self[k] = v.format(**scope._freeze())
-        return self
-
-
-class YamlDict(YamlStructure, dict):
+class YamlDict(dict):
 
     def __getattr__(self, key):
         if key in self:
@@ -36,10 +20,9 @@ class YamlDict(YamlStructure, dict):
         return self
 
 
-class YamlList(YamlStructure, list):
+class YamlList(list):
 
     def _dynamic_yaml_eval(self, scope):
-        scope = scope._add(self)
         for i, v in enumerate(self):
             if hasattr(v, '_dynamic_yaml_eval'):
                 try:
