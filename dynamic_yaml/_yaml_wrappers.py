@@ -15,8 +15,6 @@ class YamlDict(dict):
                 except YamlEvalException as e:
                     e.stacktrace.append(f".{k}")
                     raise
-            elif isinstance(v, str):
-                self[k] = v.format(**scope._freeze())
         return self
 
 
@@ -30,8 +28,6 @@ class YamlList(list):
                 except YamlEvalException as e:
                     e.stacktrace.append(f"[{i}]")
                     raise
-            elif isinstance(v, str):
-                self[i] = v.format(**scope._freeze())
         return self
 
 
@@ -97,3 +93,10 @@ class YamlInclude(str):
         filename = self.format(**env)
         from . import load
         return load(open(filename).read())
+
+
+class YamlTemplate(str):
+
+    def _dynamic_yaml_eval(self, scope):
+        env = scope._freeze()
+        return self.format(**env)
