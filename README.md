@@ -1,7 +1,6 @@
-Untitled Data Description Language
-==================================
+# Kaleb's (otherwise) Untitled Data Description Language - KUDDL
 
 Combines the cleanliness of YAML, the power of Python, and some ingenuity.
 
-TODO
+> It's like a hug — Paul U.
 
