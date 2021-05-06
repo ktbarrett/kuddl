@@ -1,4 +1,4 @@
-from dynamic_yaml import load
+from kuddl import load
 import textwrap
 
 

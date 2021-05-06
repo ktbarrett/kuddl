@@ -3,7 +3,7 @@ import yaml
 from ._version import __version__  # noqa
 
 
-def register_dynamic_yaml(Loader):
+def register_kuddl(Loader):
     from ._yaml_wrappers import YamlDict, YamlList, YamlEval, YamlBlockEval, YamlImport, YamlInclude, YamlTemplate
 
     def _construct_sequence(loader, node):
@@ -37,20 +37,20 @@ def register_dynamic_yaml(Loader):
     Loader.add_constructor('!Template', _construct_template)
 
 
-class DynamicYamlLoader(yaml.FullLoader):
+class KuddlLoader(yaml.FullLoader):
     pass
 
 
-register_dynamic_yaml(DynamicYamlLoader)
+register_kuddl(KuddlLoader)
 
 
 def post_process(document, args):
     from ._scope import NullScope
-    if hasattr(document, '_dynamic_yaml_eval'):
-        return document._dynamic_yaml_eval(NullScope(args=args, root=document))
+    if hasattr(document, '_kuddl_eval'):
+        return document._kuddl_eval(NullScope(args=args, root=document))
     return document
 
 
-def load(s, args={}, Loader=DynamicYamlLoader):
+def load(s, args={}, Loader=KuddlLoader):
     document = yaml.load(s, Loader=Loader)
     return post_process(document, args)

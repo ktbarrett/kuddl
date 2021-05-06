@@ -6,12 +6,12 @@ class YamlDict(dict):
             return self[key]
         return super().__getattribute__(key)
 
-    def _dynamic_yaml_eval(self, scope):
+    def _kuddl_eval(self, scope):
         scope = scope._add(self)
         for k, v in self.items():
-            if hasattr(v, '_dynamic_yaml_eval'):
+            if hasattr(v, '_kuddl_eval'):
                 try:
-                    self[k] = v._dynamic_yaml_eval(scope)
+                    self[k] = v._kuddl_eval(scope)
                 except YamlEvalException as e:
                     e.stacktrace.append(f".{k}")
                     raise
@@ -20,11 +20,11 @@ class YamlDict(dict):
 
 class YamlList(list):
 
-    def _dynamic_yaml_eval(self, scope):
+    def _kuddl_eval(self, scope):
         for i, v in enumerate(self):
-            if hasattr(v, '_dynamic_yaml_eval'):
+            if hasattr(v, '_kuddl_eval'):
                 try:
-                    self[i] = v._dynamic_yaml_eval(scope)
+                    self[i] = v._kuddl_eval(scope)
                 except YamlEvalException as e:
                     e.stacktrace.append(f"[{i}]")
                     raise
@@ -44,7 +44,7 @@ class YamlEvalException(Exception):
 
 class YamlEval(str):
 
-    def _dynamic_yaml_eval(self, scope):
+    def _kuddl_eval(self, scope):
         env = scope._freeze()
         code_str = self.format(**env)
         try:
@@ -57,7 +57,7 @@ class YamlEval(str):
 
 class YamlBlockEval(str):
 
-    def _dynamic_yaml_eval(self, scope):
+    def _kuddl_eval(self, scope):
         env = scope._freeze()
         code_str = self.format(**env)
         func_str = '\n\t'.join(["def _tmp():"] + code_str.split('\n'))
@@ -72,7 +72,7 @@ class YamlBlockEval(str):
 
 class YamlImport(str):
 
-    def _dynamic_yaml_eval(self, scope):
+    def _kuddl_eval(self, scope):
         env = scope._freeze()
         import_str = self.format(**env)
         spl = import_str.split(":")
@@ -88,7 +88,7 @@ class YamlImport(str):
 
 class YamlInclude(str):
 
-    def _dynamic_yaml_eval(self, scope):
+    def _kuddl_eval(self, scope):
         env = scope._freeze()
         filename = self.format(**env)
         from . import load
@@ -97,6 +97,6 @@ class YamlInclude(str):
 
 class YamlTemplate(str):
 
-    def _dynamic_yaml_eval(self, scope):
+    def _kuddl_eval(self, scope):
         env = scope._freeze()
         return self.format(**env)
