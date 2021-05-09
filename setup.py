@@ -1,25 +1,34 @@
-from setuptools import setup
-from os import path
+from typing import Dict, Any, cast
+from setuptools import setup, find_packages
+import pathlib
+import os
 
-here = path.abspath(path.dirname(__file__))
-package_name = 'kuddl'
 
-def read_file(fname):
-    return open(path.join(path.dirname(__file__), fname)).read()
+def get_version(version_file: "os.PathLike[str]") -> str:
+    locls: Dict[str, Any] = {}
+    exec(open(version_file).read(), {}, locls)
+    return cast(str, locls["__version__"])
 
-# imports __version__
-exec(read_file(path.join(package_name, '_version.py')))
+
+here = pathlib.Path(__file__).parent.resolve()
+readme_file = here / "README.md"
+version_file = here / "src" / "kuddl" / "version.py"
+
 
 setup(
-    name='kuddl',
-    version=__version__,
-    description='YAML+Python data description language',
-    long_description=read_file('README.md'),
-    url='https://github.com/ktbarrett/kuddl',
-    author='Kaleb Barrett',
-    author_email='dev.ktbarrett@gmail.com',
-    license='MIT',
-    packages=[package_name],
-    python_requires='>=3.0',
-    install_requires=['pyyaml'],
+    name="kuddl",
+    version=get_version(version_file),
+    description="YAML+Python data description language",
+    long_description=readme_file.read_text(encoding="utf-8"),
+    long_description_content_type="text/markdown",
+    url="https://github.com/ktbarrett/kuddl",
+    author="Kaleb Barrett",
+    author_email="dev.ktbarrett@gmail.com",
+    license="MIT",
+    package_dir={"": "src"},
+    packages=find_packages(where="src"),
+    python_requires=">=3.6, <4",
+    install_requires=["pyyaml"],
+    entry_points={},
+    zip_safe=False,
 )

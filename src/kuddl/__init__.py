@@ -1,6 +1,6 @@
 import yaml
 
-from ._version import __version__  # noqa
+from kuddl.version import __version__  # noqa
 
 
 def register_kuddl(Loader):

@@ -1,6 +1,3 @@
-.idea
-build
-dist
-*.egg-info
-venv
-*.pyc
+__pycache__/
+.nox/
+*.egg-info/
