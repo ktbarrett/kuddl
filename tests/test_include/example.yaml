@@ -1,5 +1,0 @@
-a: a
-b: 1
-c: 2
-d: !Eval b+c
-e: !Template "{a}{d}"

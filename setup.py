@@ -29,6 +29,7 @@ setup(
     packages=find_packages(where="src"),
     python_requires=">=3.6, <4",
     install_requires=["pyyaml"],
+    extras_require={"test": ["pytest", "coverage", "pytest-cov"]},
     entry_points={},
     zip_safe=False,
 )
