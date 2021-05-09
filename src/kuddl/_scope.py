@@ -1,8 +1,7 @@
 from ._yaml_wrappers import YamlDict
 
 
-class NullScope():
-
+class NullScope:
     def __init__(self, args, root):
         self._root = root
         self._args = args
@@ -16,7 +15,7 @@ class NullScope():
         return self._args
 
     def _freeze(self, _call_site=True):
-        return {'root': self._root, 'args': self._args}
+        return {"root": self._root, "args": self._args}
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -25,13 +24,10 @@ class NullScope():
         return self.__getattribute__(attr)
 
     def _add(self, obj):
-        return Scope(
-            this=obj,
-            up=self)
+        return Scope(this=obj, up=self)
 
 
-class Scope():
-
+class Scope:
     def __init__(self, this, up):
         self._this = this
         self._up = up
@@ -65,10 +61,8 @@ class Scope():
         if self._hasvars:
             f = {**f, **self.this}
         if _call_site:
-            f = {**f, 'this': self.this, 'up': self.up}
+            f = {**f, "this": self.this, "up": self.up}
         return f
 
     def _add(self, obj):
-        return Scope(
-            this=obj,
-            up=self)
+        return Scope(this=obj, up=self)
