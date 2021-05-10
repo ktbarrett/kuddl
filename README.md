@@ -1,3 +1,6 @@
+[![regressions](https://github.com/ktbarrett/kuddl/actions/workflows/tests.yml/badge.svg)](https://github.com/ktbarrett/kuddl/actions/workflows/tests.yml)
+[![codecov](https://codecov.io/gh/ktbarrett/kuddl/branch/master/graph/badge.svg?token=N7CS5QJ9DB)](https://codecov.io/gh/ktbarrett/kuddl)
+
 # Kaleb's (otherwise) Untitled Data Description Language - KUDDL
 
 Combines the cleanliness of YAML, the power of Python, and some ingenuity.
