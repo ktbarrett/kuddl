@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, Optional, cast, List, Type, Union
 from itertools import chain
 from functools import reduce
 from importlib import import_module
@@ -8,6 +8,10 @@ import yaml
 from kuddl.version import __version__
 
 __version__ = __version__
+
+
+AnyLoader = Union[yaml.BaseLoader, yaml.FullLoader, yaml.SafeLoader, yaml.Loader]
+# missing yaml.UnsafeLoader # python/typeshed#5390
 
 
 def _dict_union(a: Dict[Any, Any], *bs: Dict[Any, Any]) -> Dict[Any, Any]:
@@ -32,7 +36,7 @@ class _Scope:
         return self._current
 
 
-class _KuddlDict(dict):
+class _KuddlDict(Dict[str, Any]):
     def __kuddl_eval__(self, scope: _Scope) -> "_KuddlDict":
         scope = _Scope(current=self, parent=scope)
         for k, v in self.items():
@@ -45,7 +49,7 @@ class _KuddlDict(dict):
         return self
 
 
-class _KuddlList(list):
+class _KuddlList(List[Any]):
     def __kuddl_eval__(self, scope: _Scope) -> "_KuddlList":
         for i, v in enumerate(self):
             if hasattr(v, "__kuddl_eval__"):
@@ -74,7 +78,7 @@ class _KuddlBlockEval(str):
         env = scope.flattened
         code_str = _eval_template(self, env)
         func_str = "\n\t".join(["def _tmp():"] + code_str.split("\n"))
-        loc = {}
+        loc: Dict[str, Any] = {}
         try:
             exec(func_str, env, loc)
         except Exception as e:
@@ -114,39 +118,41 @@ class _KuddlTemplate(str):
 class KuddlEvalException(Exception):
     def __init__(self, msg: str):
         super().__init__(msg)
-        self.stacktrace = []
+        self.stacktrace: List[str] = []
 
-    def __str__(self):
+    def __str__(self) -> str:
         stacktrace = "".join(chain("root", reversed(self.stacktrace)))
         cause = super().__str__()
         return f"when evaluating {stacktrace!r}: {cause}"
 
 
-def register_kuddl(loader: yaml.Loader) -> yaml.Loader:
+def register_kuddl(loader: Type[AnyLoader]) -> Type[AnyLoader]:
     """
     Registers KUDDL constructors with the given :class:`yaml.loader`.
     """
 
-    def _construct_sequence(loader, node):
+    def _construct_sequence(loader: AnyLoader, node: yaml.SequenceNode) -> List[Any]:
         return _KuddlList(loader.construct_object(child) for child in node.value)
 
-    def _construct_mapping(loader, node):
-        make_obj = loader.construct_object
-        return _KuddlDict((make_obj(k), make_obj(v)) for k, v in node.value)
+    def _construct_mapping(loader: AnyLoader, node: yaml.MappingNode) -> Dict[str, Any]:
+        return _KuddlDict(
+            (loader.construct_object(k), loader.construct_object(v))
+            for k, v in node.value
+        )
 
-    def _construct_eval(loader, node):
+    def _construct_eval(loader: AnyLoader, node: yaml.ScalarNode) -> Any:
         return _KuddlEval(node.value)
 
-    def _construct_blockeval(loader, node):
+    def _construct_blockeval(loader: AnyLoader, node: yaml.ScalarNode) -> Any:
         return _KuddlBlockEval(node.value)
 
-    def _construct_importer(laoder, node):
+    def _construct_importer(loader: AnyLoader, node: yaml.ScalarNode) -> Any:
         return _KuddlImport(node.value)
 
-    def _construct_includer(loader, node):
+    def _construct_includer(loader: AnyLoader, node: yaml.ScalarNode) -> Any:
         return _KuddlInclude(node.value)
 
-    def _construct_template(loader, node):
+    def _construct_template(loader: AnyLoader, node: yaml.ScalarNode) -> Any:
         return _KuddlTemplate(node.value)
 
     loader.add_constructor(
@@ -183,7 +189,7 @@ def post_process(document: Any, args: Any) -> Any:
     return document
 
 
-def load(s: str, Loader: yaml.Loader = KuddlLoader, *, args: Any = None) -> Any:
+def load(s: str, Loader: Type[AnyLoader] = KuddlLoader, *, args: Any = None) -> Any:
     """
     Wrapper around :func:`yaml.load` which supports KUDDL extensions.
 
